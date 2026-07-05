@@ -1,0 +1,14 @@
+{
+  "name": "saved-posts",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Community Forum - Saved Posts take-home",
+  "workspaces": ["server", "web"],
+  "scripts": {
+    "install:all": "npm install",
+    "seed": "npm --workspace server run seed",
+    "dev:server": "npm --workspace server run dev",
+    "dev:web": "npm --workspace web run dev",
+    "test": "npm --workspace server run test"
+  }
+}
