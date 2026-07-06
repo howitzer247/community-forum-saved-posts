@@ -3,17 +3,19 @@ import { drizzle } from 'drizzle-orm/libsql';
 import * as schema from './schema.js';
 
 /**
- * We use libSQL (a SQLite-compatible engine) via @libsql/client. It ships
- * prebuilt binaries (no native compile step), runs a local file or in-memory DB,
- * and is a drop-in for SQLite. Choosing SQLite/libSQL over Postgres is an
- * explicit, allowed substitution (see NOTES.md): zero infra for the reviewer,
- * and the Drizzle schema + queries port to Postgres by swapping only the driver.
+ * Database via @libsql/client (SQLite-compatible).
  *
- * The client is async, so every DB call in the logic/API layers is awaited —
- * which also mirrors how a real networked database (Postgres) would behave.
+ * - Local dev / tests: a local file (or :memory:) — zero infra.
+ * - Production (Turso): set TURSO_DATABASE_URL and TURSO_AUTH_TOKEN and the same
+ *   code talks to a hosted libSQL database. No query changes needed — libSQL is
+ *   the same engine locally and in the cloud. This is why SQLite/libSQL was a good
+ *   substitution: it scales from a local file to a hosted DB by swapping only the
+ *   connection URL + token.
  */
-export function createDb(url = 'file:forum.db') {
-  const client = createClient({ url });
+export function createDb(url?: string) {
+  const dbUrl = url ?? process.env.TURSO_DATABASE_URL ?? 'file:forum.db';
+  const authToken = process.env.TURSO_AUTH_TOKEN;
+  const client = createClient(authToken ? { url: dbUrl, authToken } : { url: dbUrl });
   return drizzle(client, { schema });
 }
 

@@ -47,8 +47,17 @@ export function getCurrentUser(): string {
   return currentUserId;
 }
 
+/**
+ * API base URL.
+ * - Local dev: empty string, so requests hit '/api/...' and Vite proxies to the
+ *   local server (see vite.config.ts).
+ * - Production: set VITE_API_URL to the deployed API origin (e.g. the Render URL)
+ *   at build time, and requests go straight there.
+ */
+const API_BASE = import.meta.env.VITE_API_URL ?? '';
+
 async function req<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(path, {
+  const res = await fetch(`${API_BASE}${path}`, {
     ...init,
     headers: {
       'content-type': 'application/json',
